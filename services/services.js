@@ -1,91 +1,31 @@
-var request = require('request'),
-    cheerio = require('cheerio');
+"use strict";
 
-var helpers = require('../helpers/helpers');
+let request = require('request');
 
 module.exports = {
 
-    getCinema: function(location, callback){
-        var googleUrl = 'http://www.google.it/movies?near='+location;
-        request(googleUrl, function(error, response, html){
-            if(!error){
-                var $ = cheerio.load(html);
-                var theaters = [];
-                $('.theater .desc .name a').each(function(index){
-                    var element = {};
-                    var data = $(this);
-                    var name = data.text(),
-                        info = data.parent().parent().find('.info').text(),
-                        link = data.attr('href');
-                    element = name;
-                    theaters.push([element]);
-                });
-                if (typeof callback == "function")
-                    return callback(theaters);
-                else
-                    return theaters;
-            } else {
-                console.log("ERROR GETCINEMA", err); return;
-            }
-        });
-    },
+    getTheaters: (location, resolve, reject) => {
 
-    getMovies: function(location, theater, callback){
-        var googleUrl = 'http://www.google.it/movies?near='+location;
-        request(googleUrl, function(error, response, html){
-            if(!error){
-                var $ = cheerio.load(html);
-                var movies = [];
-                $('.theater .desc .name a').each(function(index){
-                    var text = $(this).text()
-                    if (text == theater){
-                        var data = $(this);
-                        data.parent().parent().siblings('.showtimes').find('.movie').each(function(){
-                            var element = {};
-                            var data = $(this);
-                            var name = data.find('.name a').text();
-                            element = name;
-                            movies.push([element]);
-                        });
-                    }
-                });
-                if (typeof callback == "function"){
-                    return callback(movies);
-                } else {
-                    return movies;
+        let endPoint     = `http://cinemasbot-api.herokuapp.com/?near=${location}`,
+            listTheaters = [];
+
+        request({
+            url: endPoint,
+            json: {
+                field1: 'data',
+                field2: 'data'
+            }
+        }, (error, response, body) => {
+            if(error) {
+                console.log(error);
+            } else {
+                for (let i=0; i< body.data.length; i++){
+                    listTheaters.push([body.data[i].theater_name])
                 }
-            } else {
-                console.log("ERROR GETMOVIES", err); return;
+                resolve(listTheaters)
             }
         });
-    },
 
-    getTimes: function(location, theater, movie, callback){
-        var googleUrl = 'http://www.google.it/movies?near='+location;
-        request(googleUrl, function(error, response, html){
-            if(!error){
-                var $ = cheerio.load(html);
-                $('.theater .desc .name a').each(function(){
-                    var text = $(this).text()
-                    if (text == theater){
-                        var data = $(this);
-                        data.parent().parent().siblings('.showtimes').find('.movie').each(function(){
-                            var text = $(this).find('.name').text();
-                            if (text == movie){
-                                var data = $(this);
-                                var movieTimes = data.find('.times').text();
-                                var responseTimes = "The show times for " + decodeURI(movie) + " are: " + movieTimes + ". " + helpers.textResponse.beer;
-                                if (typeof callback == "function")
-                                    return callback(responseTimes);
-                                else
-                                    return responseTimes;
-                            }
-                        });
-                    }
-                });
-            } else {
-                console.log("ERROR GETTIMES", err); return;
-            }
-        });
     }
+
 }

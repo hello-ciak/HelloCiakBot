@@ -1,8 +1,11 @@
-var request = require('request');
+"use strict";
+
+let request = require('request');
 
 module.exports = {
 
     sendMessage: function(token, qs){
+
         request({
             url: 'https://api.telegram.org/' + token + '/sendMessage',
             method: 'POST',
@@ -12,6 +15,7 @@ module.exports = {
                 console.log("ERROR SENDMESSAGE", err); return;
             }
         });
+
     }
 
 }

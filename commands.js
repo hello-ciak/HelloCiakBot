@@ -131,7 +131,7 @@ module.exports = {
         events.sendMessage(token, qs);
     },
 
-    getCinema: (chat_id, token, theaters) => {
+    getTheaters: (chat_id, token, theaters) => {
         console.log('user get theaters')
         var list_theaters = theaters.slice(0);
         list_theaters.push(['✖️']);
