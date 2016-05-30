@@ -111,17 +111,17 @@ module.exports = {
         events.sendMessage(token, qs);
     },
 
-    getTimes: (chat_id, token, movieTimes) => {
+    getInfo: (chat_id, token, movie_info) => {
         console.log('user get times')
         qs = {
             chat_id: chat_id,
             disable_web_page_preview: true,
-            text: movieTimes,
+            text: `${movie_info.info}, ${movie_info.times}`,
             reply_markup: JSON.stringify({
                 "inline_keyboard": [
                     [
                         {
-                            'text':'Donate with Paypal',
+                            'text': 'Donate with Paypal',
                             'url': 'https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PX3EU8YNJF8JS'
                         }
                     ]
