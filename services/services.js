@@ -12,7 +12,7 @@ module.exports = {
 
         request({
             url: endPoint,
-            json: {}
+            json: true
         }, (error, response, body) => {
             if(error) {
                 console.log(error);
@@ -30,12 +30,11 @@ module.exports = {
     getMovies: (location, theater, resolve, reject) => {
 
         let endPoint     = `${baseUrl}/?near=${location}&cinema_name=${theater}`,
-            // endPoint     = `${baseUrl}/?near=${location}&cinema_name=${theater}`,
             listMovies = [];
 
         request({
             url: endPoint,
-            json: {}
+            json: true
         }, (error, response, body) => {
             if(error) {
                 console.log(error);
@@ -61,7 +60,7 @@ module.exports = {
 
         request({
             url: endPoint,
-            json: {}
+            json: true
         }, (error, response, body) => {
             if(error) {
                 console.log(error);

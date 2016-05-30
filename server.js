@@ -1,18 +1,15 @@
 "use strict";
 
 var express     = require('express'),
-    bodyParser  = require('body-parser');
+    body_parser = require('body-parser'),
+    helpers     = require('./helpers/helpers'),
+    commands    = require('./commands/commands'),
+    services    = require('./services/services'),
+    events      = require('./events/events');
 
-var helpers  = require('./helpers/helpers'),
-    commands = require('./commands'),
-    services = require('./services/services'),
-    events   = require('./events/events');
-
-var app     = express(),
-    token   = process.env.TELEGRAM_TOKEN;
-
-var qs = {},
-    user_session = {};
+var app          = express(),
+    token        = process.env.TELEGRAM_TOKEN,
+    qs, user_session = {};
 
 const STATUSES = {
     INITIAL: 1,
@@ -20,8 +17,8 @@ const STATUSES = {
     MOVIES_RECEIVED: 3
 };
 
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json());
+app.use(body_parser.urlencoded({ extended: false }))
+app.use(body_parser.json());
 
 app.post('/', function (req, res) {
 

@@ -1,5 +1,5 @@
-var helpers = require('./helpers/helpers'),
-    events = require('./events/events')
+var helpers = require('../helpers/helpers'),
+    events = require('../events/events');
 
 module.exports = {
 
