@@ -49,17 +49,22 @@ app.post('/', function (req, res) {
                 switch(user_command) {
 
                     case '/start':
-                        commands.start(user_session.from_id.chat_id, req, token)
+                        commands.start(user_session.from_id.chat_id, req.body.message.chat.first_name, token)
                     break;
 
-                    case '/dev':
-                        commands.creator(user_session.from_id.chat_id, token)
+                    case '/help':
+                        commands.info(user_session.from_id.chat_id, token)
+                    break;
+
+                    case '/reset':
+                        user_session.from_id.status = STATUSES.INITIAL
+                        commands.reset(user_session.from_id.chat_id, token)
                     break;
 
                     case '/getcinema':
+                        user_session.from_id.status = STATUSES.INITIAL
                         if (!user_parameter) {
                             commands.notParameter(user_session.from_id.chat_id, token)
-                            console.log('-- command not parameter')
                         } else {
 
                             new Promise((resolve, reject) => {
@@ -69,12 +74,11 @@ app.post('/', function (req, res) {
                             }).then((data) => {
 
                                 if (data.length > 0){
-                                    events.sendMessage(token, qs)
-                                    commands.getTheaters(user_session.from_id.chat_id, token, data)
                                     user_session.from_id.status = STATUSES.THEATERS_RECEIVED;
                                     user_session.from_id.location = user_parameter;
+                                    commands.getTheaters(user_session.from_id.chat_id, token, data)
                                 } else {
-                                    commands.notresults(user_session.from_id.chat_id, token, user_parameter)
+                                    commands.notResults(user_session.from_id.chat_id, token, user_parameter)
                                 }
 
                             })
@@ -105,11 +109,9 @@ app.post('/', function (req, res) {
                                 if (typeof theaterData == 'object'){
                                     console.log('theaterData', theaterData)
                                     user_session.from_id.status = STATUSES.MOVIES_RECEIVED;
-                                    events.sendMessage(token, qs)
                                     commands.getMovies(user_session.from_id.chat_id, token, theaterData)
                                 } else {
-                                    events.sendMessage(token, qs)
-                                    commands.notfound(user_session.from_id.chat_id, token)
+                                    commands.notFound(user_session.from_id.chat_id, token)
                                 }
                             });
                             break;
@@ -119,12 +121,9 @@ app.post('/', function (req, res) {
                                 services.getMovieInfo(user_session.from_id.location, user_session.from_id.theater, user_message, resolve, reject)
                             }).then((movieData) => {
                                 if (typeof movieData == 'object'){
-                                    events.sendMessage(token, qs)
                                     commands.getInfo(user_session.from_id.chat_id, token, movieData)
-                                    console.log('data', movieData)
                                 } else {
-                                    events.sendMessage(token, qs)
-                                    commands.notfound(user_session.from_id.chat_id, token)
+                                    commands.notFound(user_session.from_id.chat_id, token)
                                 }
                             });
                             break;
@@ -148,11 +147,10 @@ app.post('/', function (req, res) {
             }).then((data) => {
 
                 if (data.length > 0){
-                    events.sendMessage(token, qs)
                     commands.getTheaters(user_session.from_id.chat_id, token, data)
                     user_session.from_id.status = STATUSES.THEATERS_RECEIVED;
                 } else {
-                    commands.notresults(user_session.from_id.chat_id, token, user_parameter)
+                    commands.notResults(user_session.from_id.chat_id, token, user_parameter)
                 }
 
             })
