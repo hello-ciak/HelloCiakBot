@@ -2,14 +2,14 @@
 
 var express     = require('express'),
     body_parser = require('body-parser'),
-    ua          = require('universal-analytics');
+    ua          = require('universal-analytics'),
     helpers     = require('./helpers/helpers'),
     commands    = require('./commands/commands'),
     services    = require('./services/services');
 
 var app         = express(),
     token       = process.env.TELEGRAM_TOKEN,
-    visitor     = ua(process.env.UA_TOKEN);
+    visitor     = ua(process.env.UA_TOKEN),
     qs, user_session = {};
 
 const STATUSES = {
