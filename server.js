@@ -4,8 +4,7 @@ var express     = require('express'),
     body_parser = require('body-parser'),
     helpers     = require('./helpers/helpers'),
     commands    = require('./commands/commands'),
-    services    = require('./services/services'),
-    events      = require('./events/events');
+    services    = require('./services/services');
 
 var app          = express(),
     token        = process.env.TELEGRAM_TOKEN,
@@ -49,6 +48,7 @@ app.post('/', function (req, res) {
                 switch(user_command) {
 
                     case '/start':
+                        user_session.from_id.status = STATUSES.INITIAL
                         commands.start(user_session.from_id.chat_id, req.body.message.chat.first_name, token)
                     break;
 
@@ -66,13 +66,9 @@ app.post('/', function (req, res) {
                         if (!user_parameter) {
                             commands.notParameter(user_session.from_id.chat_id, token)
                         } else {
-
                             new Promise((resolve, reject) => {
-
                                 services.getTheaters(user_parameter, resolve, reject)
-
                             }).then((data) => {
-
                                 if (data.length > 0){
                                     user_session.from_id.status = STATUSES.THEATERS_RECEIVED;
                                     user_session.from_id.location = user_parameter;
@@ -80,9 +76,7 @@ app.post('/', function (req, res) {
                                 } else {
                                     commands.notResults(user_session.from_id.chat_id, token, user_parameter)
                                 }
-
                             })
-
                         }
                     break;
 
@@ -90,6 +84,7 @@ app.post('/', function (req, res) {
                         commands.error(user_session.from_id.chat_id, token)
 
                 }
+
             } else {
 
                 if (user_message.charAt(0) == '✖') {
@@ -128,6 +123,9 @@ app.post('/', function (req, res) {
                             });
                             break;
 
+                        default:
+                            commands.info(user_session.from_id.chat_id, token)
+
                     }
 
                 }
@@ -138,29 +136,23 @@ app.post('/', function (req, res) {
 
         case 'location':
 
+            user_session.from_id.status = STATUSES.INITIAL
             user_session.from_id.location = `${req.body.message.location.latitude},${req.body.message.location.longitude}`;
-
             new Promise((resolve, reject) => {
-
                 services.getTheaters(user_session.from_id.location, resolve, reject)
-
             }).then((data) => {
-
                 if (data.length > 0){
                     commands.getTheaters(user_session.from_id.chat_id, token, data)
                     user_session.from_id.status = STATUSES.THEATERS_RECEIVED;
                 } else {
                     commands.notResults(user_session.from_id.chat_id, token, user_parameter)
                 }
-
             })
             break;
-
 
     };
 
     res.send();
-
 
 });
 
