@@ -28,6 +28,7 @@ app.post('/', function (req, res) {
 
     if (!user_session.from_id){
         user_session.from_id = {
+            username: req.body.message.from.username ? "@"+req.body.message.from.username : req.body.message.from.first_name,
             chat_id: req.body.message.chat.id,
             location: undefined,
             theater: undefined,
@@ -49,7 +50,7 @@ app.post('/', function (req, res) {
 
                     case '/start':
                         user_session.from_id.status = STATUSES.INITIAL
-                        commands.start(user_session.from_id.chat_id, req.body.message.chat.first_name, token)
+                        commands.start(user_session.from_id.chat_id, user_session.from_id.username, token)
                     break;
 
                     case '/help':

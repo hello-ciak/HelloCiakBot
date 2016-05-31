@@ -33,7 +33,7 @@ module.exports = {
         qs = {
             reply_markup: JSON.stringify({"hide_keyboard": true}),
             chat_id: chat_id,
-            text: `Hello *${user_name}*.\nUse /getcinema to receive the list of movie theaters near you.\nUse /help for more info.`,
+            text: `Hello ${user_name}.\nUse /getcinema to receive the list of movie theaters near you.\nUse /help for more info.`,
             parse_mode: "Markdown"
         };
         events.sendMessage(token, qs)
