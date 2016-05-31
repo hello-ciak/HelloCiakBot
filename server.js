@@ -27,7 +27,7 @@ app.post('/', function (req, res) {
 
     console.log(req.body)
 
-    var from_id      = req.body.message.message.id,
+    var from_id      = req.body.message.chat.id,
         user_message = req.body.message.text + " ";
 
     if (!user_session.from_id){
