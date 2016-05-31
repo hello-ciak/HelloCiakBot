@@ -25,13 +25,13 @@ app.post('/', function (req, res) {
 
     visitor.pageview("/sendmessage").send();
 
-    console.log(req.body)
+    // console.log(req.body)
 
-    var from_id      = req.body.message.chat.id,
+    var from_id      = req.body.message.from.id,
         user_message = req.body.message.text + " ";
 
-    if (!user_session.from_id){
-        user_session.from_id = {
+    if (!user_session[from_id]){
+        user_session[from_id] = {
             username: req.body.message.from.username ? "@"+req.body.message.from.username : req.body.message.from.first_name,
             chat_id: req.body.message.chat.id,
             location: undefined,
@@ -40,6 +40,8 @@ app.post('/', function (req, res) {
             status: STATUSES.INITIAL
         }
     }
+
+    console.log(user_session)
 
     switch (helpers.messageType(req)) {
 
@@ -53,45 +55,45 @@ app.post('/', function (req, res) {
                 switch(user_command) {
 
                     case '/start':
-                        user_session.from_id.status = STATUSES.INITIAL
-                        commands.start(user_session.from_id.chat_id, user_session.from_id.username, token)
+                        user_session[from_id].status = STATUSES.INITIAL
+                        commands.start(user_session[from_id].chat_id, user_session[from_id].username, token)
                         visitor.pageview("/start").send();
                     break;
 
                     case '/help':
-                        commands.info(user_session.from_id.chat_id, token)
+                        commands.info(user_session[from_id].chat_id, token)
                         visitor.pageview("/help").send();
                     break;
 
                     case '/reset':
-                        user_session.from_id.status = STATUSES.INITIAL
-                        commands.reset(user_session.from_id.chat_id, token)
+                        user_session[from_id].status = STATUSES.INITIAL
+                        commands.reset(user_session[from_id].chat_id, token)
                         visitor.pageview("/reset").send();
                     break;
 
                     case '/getcinema':
-                        user_session.from_id.status = STATUSES.INITIAL
+                        user_session[from_id].status = STATUSES.INITIAL
                         if (!user_parameter) {
-                            commands.notParameter(user_session.from_id.chat_id, token)
+                            commands.notParameter(user_session[from_id].chat_id, token)
                             visitor.pageview("/not_parameter").send();
                         } else {
                             new Promise((resolve, reject) => {
                                 services.getTheaters(user_parameter, resolve, reject)
                             }).then((data) => {
                                 if (data.length > 0){
-                                    user_session.from_id.status = STATUSES.THEATERS_RECEIVED;
-                                    user_session.from_id.location = user_parameter;
-                                    commands.getTheaters(user_session.from_id.chat_id, token, data)
+                                    user_session[from_id].status = STATUSES.THEATERS_RECEIVED;
+                                    user_session[from_id].location = user_parameter;
+                                    commands.getTheaters(user_session[from_id].chat_id, token, data)
                                     visitor.pageview("/theaters_received").send();
                                 } else {
-                                    commands.notResults(user_session.from_id.chat_id, token, user_parameter)
+                                    commands.notResults(user_session[from_id].chat_id, token, user_parameter)
                                 }
                             })
                         }
                     break;
 
                     default:
-                        commands.error(user_session.from_id.chat_id, token)
+                        commands.error(user_session[from_id].chat_id, token)
                         visitor.pageview("/commandnotfound").send();
 
                 }
@@ -100,45 +102,45 @@ app.post('/', function (req, res) {
 
                 if (user_message.charAt(0) == '✖') {
 
-                    user_session.from_id.status = STATUSES.INITIAL
-                    commands.reset(user_session.from_id.chat_id, token)
+                    user_session[from_id].status = STATUSES.INITIAL
+                    commands.reset(user_session[from_id].chat_id, token)
                     visitor.pageview("/close").send();
 
                 } else {
 
-                    switch(user_session.from_id.status){
+                    switch(user_session[from_id].status){
 
                         case STATUSES.THEATERS_RECEIVED:
-                            user_session.from_id.theater = user_message;
+                            user_session[from_id].theater = user_message;
                             new Promise((resolve, reject) => {
-                                services.getMovies(user_session.from_id.location, user_message, resolve, reject)
+                                services.getMovies(user_session[from_id].location, user_message, resolve, reject)
                             }).then((theaterData) => {
                                 if (typeof theaterData == 'object'){
                                     console.log('theaterData', theaterData)
-                                    user_session.from_id.status = STATUSES.MOVIES_RECEIVED;
-                                    commands.getMovies(user_session.from_id.chat_id, token, theaterData)
+                                    user_session[from_id].status = STATUSES.MOVIES_RECEIVED;
+                                    commands.getMovies(user_session[from_id].chat_id, token, theaterData)
                                     visitor.pageview("/movies_received").send();
                                 } else {
-                                    commands.notFound(user_session.from_id.chat_id, token)
+                                    commands.notFound(user_session[from_id].chat_id, token)
                                 }
                             });
                             break;
 
                         case STATUSES.MOVIES_RECEIVED:
                             new Promise((resolve, reject) => {
-                                services.getMovieInfo(user_session.from_id.location, user_session.from_id.theater, user_message, resolve, reject)
+                                services.getMovieInfo(user_session[from_id].location, user_session[from_id].theater, user_message, resolve, reject)
                             }).then((movieData) => {
                                 if (typeof movieData == 'object'){
-                                    commands.getInfo(user_session.from_id.chat_id, token, movieData)
+                                    commands.getInfo(user_session[from_id].chat_id, token, movieData)
                                     visitor.pageview("/info_received").send();
                                 } else {
-                                    commands.notFound(user_session.from_id.chat_id, token)
+                                    commands.notFound(user_session[from_id].chat_id, token)
                                 }
                             });
                             break;
 
                         default:
-                            commands.info(user_session.from_id.chat_id, token)
+                            commands.info(user_session[from_id].chat_id, token)
                             visitor.pageview("/generic_text").send();
 
                     }
@@ -151,16 +153,16 @@ app.post('/', function (req, res) {
 
         case 'location':
 
-            user_session.from_id.status = STATUSES.INITIAL
-            user_session.from_id.location = `${req.body.message.location.latitude},${req.body.message.location.longitude}`;
+            user_session[from_id].status = STATUSES.INITIAL
+            user_session[from_id].location = `${req.body.message.location.latitude},${req.body.message.location.longitude}`;
             new Promise((resolve, reject) => {
-                services.getTheaters(user_session.from_id.location, resolve, reject)
+                services.getTheaters(user_session[from_id].location, resolve, reject)
             }).then((data) => {
                 if (data.length > 0){
-                    commands.getTheaters(user_session.from_id.chat_id, token, data)
-                    user_session.from_id.status = STATUSES.THEATERS_RECEIVED;
+                    commands.getTheaters(user_session[from_id].chat_id, token, data)
+                    user_session[from_id].status = STATUSES.THEATERS_RECEIVED;
                 } else {
-                    commands.notResults(user_session.from_id.chat_id, token, user_parameter)
+                    commands.notResults(user_session[from_id].chat_id, token, user_parameter)
                 }
             })
             visitor.pageview("/send_location").send();
