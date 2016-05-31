@@ -2,12 +2,14 @@
 
 var express     = require('express'),
     body_parser = require('body-parser'),
+    ua          = require('universal-analytics');
     helpers     = require('./helpers/helpers'),
     commands    = require('./commands/commands'),
     services    = require('./services/services');
 
-var app          = express(),
-    token        = process.env.TELEGRAM_TOKEN,
+var app         = express(),
+    token       = process.env.TELEGRAM_TOKEN,
+    visitor     = ua(process.env.UA_TOKEN);
     qs, user_session = {};
 
 const STATUSES = {
@@ -20,6 +22,8 @@ app.use(body_parser.urlencoded({ extended: false }))
 app.use(body_parser.json());
 
 app.post('/', function (req, res) {
+
+    visitor.pageview("/sendmessage").send();
 
     console.log(req.body)
 
@@ -51,21 +55,25 @@ app.post('/', function (req, res) {
                     case '/start':
                         user_session.from_id.status = STATUSES.INITIAL
                         commands.start(user_session.from_id.chat_id, user_session.from_id.username, token)
+                        visitor.pageview("/start").send();
                     break;
 
                     case '/help':
                         commands.info(user_session.from_id.chat_id, token)
+                        visitor.pageview("/help").send();
                     break;
 
                     case '/reset':
                         user_session.from_id.status = STATUSES.INITIAL
                         commands.reset(user_session.from_id.chat_id, token)
+                        visitor.pageview("/reset").send();
                     break;
 
                     case '/getcinema':
                         user_session.from_id.status = STATUSES.INITIAL
                         if (!user_parameter) {
                             commands.notParameter(user_session.from_id.chat_id, token)
+                            visitor.pageview("/not_parameter").send();
                         } else {
                             new Promise((resolve, reject) => {
                                 services.getTheaters(user_parameter, resolve, reject)
@@ -74,6 +82,7 @@ app.post('/', function (req, res) {
                                     user_session.from_id.status = STATUSES.THEATERS_RECEIVED;
                                     user_session.from_id.location = user_parameter;
                                     commands.getTheaters(user_session.from_id.chat_id, token, data)
+                                    visitor.pageview("/theaters_received").send();
                                 } else {
                                     commands.notResults(user_session.from_id.chat_id, token, user_parameter)
                                 }
@@ -83,6 +92,7 @@ app.post('/', function (req, res) {
 
                     default:
                         commands.error(user_session.from_id.chat_id, token)
+                        visitor.pageview("/commandnotfound").send();
 
                 }
 
@@ -92,6 +102,7 @@ app.post('/', function (req, res) {
 
                     user_session.from_id.status = STATUSES.INITIAL
                     commands.reset(user_session.from_id.chat_id, token)
+                    visitor.pageview("/close").send();
 
                 } else {
 
@@ -106,6 +117,7 @@ app.post('/', function (req, res) {
                                     console.log('theaterData', theaterData)
                                     user_session.from_id.status = STATUSES.MOVIES_RECEIVED;
                                     commands.getMovies(user_session.from_id.chat_id, token, theaterData)
+                                    visitor.pageview("/movies_received").send();
                                 } else {
                                     commands.notFound(user_session.from_id.chat_id, token)
                                 }
@@ -118,6 +130,7 @@ app.post('/', function (req, res) {
                             }).then((movieData) => {
                                 if (typeof movieData == 'object'){
                                     commands.getInfo(user_session.from_id.chat_id, token, movieData)
+                                    visitor.pageview("/info_received").send();
                                 } else {
                                     commands.notFound(user_session.from_id.chat_id, token)
                                 }
@@ -126,6 +139,7 @@ app.post('/', function (req, res) {
 
                         default:
                             commands.info(user_session.from_id.chat_id, token)
+                            visitor.pageview("/generic_text").send();
 
                     }
 
@@ -149,6 +163,7 @@ app.post('/', function (req, res) {
                     commands.notResults(user_session.from_id.chat_id, token, user_parameter)
                 }
             })
+            visitor.pageview("/send_location").send();
             break;
 
     };
