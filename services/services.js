@@ -17,7 +17,6 @@ module.exports = {
             if(error) {
                 console.log(error);
             } else {
-                console.log(body)
                 for (let i=0; i< body.data.length; i++){
                     listTheaters.push([body.data[i].theater_name])
                 }
@@ -40,7 +39,6 @@ module.exports = {
                 console.log(error);
             } else {
                 if (body.data[0]){
-                    console.log(body.data);
                     for (let i=0; i< body.data[0].movies.length; i++){
                         listMovies.push([body.data[0].movies[i].title])
                     }
@@ -65,7 +63,6 @@ module.exports = {
             if(error) {
                 console.log(error);
             } else {
-                console.log(body.data);
                 if (body.data[0]){
                     movieInfo.info = body.data[0].movies[0].movie_info;
                     movieInfo.times = body.data[0].movies[0].times;
