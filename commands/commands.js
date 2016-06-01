@@ -49,7 +49,6 @@ module.exports = {
     },
 
     info: (chat_id, token) => {
-        console.log('INFO')
         qs = {
             reply_markup: JSON.stringify({"hide_keyboard": true}),
             chat_id: chat_id,
@@ -70,7 +69,6 @@ module.exports = {
     },
 
     getMovies: (chat_id, token, movies) => {
-        console.log('user get movies')
         var list_movies = movies.slice(0);
         list_movies.push(['✖️']);
         qs = {
