@@ -18,14 +18,16 @@ const STATUSES = {
     MOVIES_RECEIVED: 3
 };
 
+let removeData = (id) => {
+    delete user_session[id]
+}
+
 app.use(body_parser.urlencoded({ extended: false }))
 app.use(body_parser.json());
 
 app.post('/', function (req, res) {
 
     visitor.pageview("/sendmessage").send();
-
-    // console.log(req.body)
 
     var from_id      = req.body.message.from.id,
         user_message = req.body.message.text + " ";
@@ -40,8 +42,6 @@ app.post('/', function (req, res) {
             status: STATUSES.INITIAL
         }
     }
-
-    console.log(user_session)
 
     switch (helpers.messageType(req)) {
 
@@ -68,6 +68,7 @@ app.post('/', function (req, res) {
                     case '/reset':
                         user_session[from_id].status = STATUSES.INITIAL
                         commands.reset(user_session[from_id].chat_id, token)
+                        removeData(from_id)
                         visitor.pageview("/reset").send();
                     break;
 
@@ -104,6 +105,7 @@ app.post('/', function (req, res) {
 
                     user_session[from_id].status = STATUSES.INITIAL
                     commands.reset(user_session[from_id].chat_id, token)
+                    removeData(from_id)
                     visitor.pageview("/close").send();
 
                 } else {
@@ -116,7 +118,6 @@ app.post('/', function (req, res) {
                                 services.getMovies(user_session[from_id].location, user_message, resolve, reject)
                             }).then((theaterData) => {
                                 if (typeof theaterData == 'object'){
-                                    console.log('theaterData', theaterData)
                                     user_session[from_id].status = STATUSES.MOVIES_RECEIVED;
                                     commands.getMovies(user_session[from_id].chat_id, token, theaterData)
                                     visitor.pageview("/movies_received").send();
@@ -155,6 +156,7 @@ app.post('/', function (req, res) {
 
             user_session[from_id].status = STATUSES.INITIAL
             user_session[from_id].location = `${req.body.message.location.latitude},${req.body.message.location.longitude}`;
+
             new Promise((resolve, reject) => {
                 services.getTheaters(user_session[from_id].location, resolve, reject)
             }).then((data) => {
@@ -170,6 +172,7 @@ app.post('/', function (req, res) {
 
     };
 
+    console.log(user_session)
     res.send();
 
 });
