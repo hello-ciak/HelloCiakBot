@@ -19,7 +19,7 @@ module.exports = {
         author: "The creator of this amazing Bot is the brilliant @nicksruggeri 😎",
         hint_keyboard: "Use your keyboard with these options to reply",
         example: "Ex: /getcinema Venezia or /getcinema 31010 (postal code)",
-        sorry: "Sorry, cinemas not found in "
+        sorry: "Sorry, cinemas not found in"
     }
 
 }
