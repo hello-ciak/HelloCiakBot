@@ -16,6 +16,7 @@ module.exports = {
         qs = {
             reply_markup: JSON.stringify({"hide_keyboard":true}),
             chat_id: chat_id,
+            parse_mode: "Markdown",
             text: `${helpers.textResponse.sorry} *${user_parameter}*`
         };
         events.sendMessage(token, qs);
