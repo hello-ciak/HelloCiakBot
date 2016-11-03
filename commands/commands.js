@@ -40,6 +40,26 @@ module.exports = {
         events.sendMessage(token, qs)
     },
 
+    offline: (chat_id, user_name, token) => {
+        qs = {
+            reply_markup: JSON.stringify({"hide_keyboard": true}),
+            chat_id: chat_id,
+            text: `Seems like *Google* is not our friend anymore.\nThe APIs we relied on are *now dismissed*.\nThanks for all the fish and hope to see you soon.`,
+            parse_mode: "Markdown",
+            reply_markup: JSON.stringify({
+                "inline_keyboard": [
+                    [
+                        {
+                            'text':'Donate with Paypal',
+                            'url': 'https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PX3EU8YNJF8JS'
+                        }
+                    ]
+                ]
+            })
+        };
+        events.sendMessage(token, qs)
+    },
+
     reset: (chat_id, token) => {
         qs = {
             reply_markup: JSON.stringify({"hide_keyboard": true}),
